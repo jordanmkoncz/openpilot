@@ -20,6 +20,9 @@ class CarInterface(object):
     self.brake_pressed_prev = False
     self.cruise_enabled_prev = False
     self.low_speed_alert = False
+    self.lkas_button_on_prev = False
+    self.vEgo_prev = False
+    self.turning_indicator_alert = False
 
     # *** init the major players ***
     self.CS = CarState(CP)
@@ -53,6 +56,9 @@ class CarInterface(object):
     ret.steerActuatorDelay = 0.1  # Default delay
     ret.steerRateCost = 0.5
     tire_stiffness_factor = 1.
+
+    ret.minEnableSpeed = -1.   # enable is done by stock ACC, so ignore this
+    ret.minSteerSpeed = 0.
 
     if candidate in [CAR.SANTA_FE, CAR.SANTA_FE_1]:
       ret.lateralTuning.pid.kf = 0.00005
@@ -221,7 +227,7 @@ class CarInterface(object):
     ret.steeringPressed = self.CS.steer_override
 
     # cruise state
-    ret.cruiseState.enabled = self.CS.pcm_acc_status != 0
+    ret.cruiseState.enabled = self.CS.main_on != 0
     if self.CS.pcm_acc_status != 0:
       ret.cruiseState.speed = self.CS.cruise_set_speed
     else:
@@ -257,6 +263,9 @@ class CarInterface(object):
     if ret.vEgo > (self.CP.minSteerSpeed + 1.):
       self.low_speed_alert = False
 
+    # turning indicator alert hysteresis logic
+    self.turning_indicator_alert = True if self.CS.left_blinker_on or self.CS.right_blinker_on else False
+
     events = []
     if not ret.gearShifter == GearShifter.drive:
       events.append(create_event('wrongGear', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
@@ -279,21 +288,26 @@ class CarInterface(object):
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
 
     # disable on pedals rising edge or when brake is pressed and speed isn't zero
-    if (ret.gasPressed and not self.gas_pressed_prev) or \
-      (ret.brakePressed and (not self.brake_pressed_prev or ret.vEgoRaw > 0.1)):
-      events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
+    # if (ret.gasPressed and not self.gas_pressed_prev) or \
+    #   (ret.brakePressed and (not self.brake_pressed_prev or ret.vEgoRaw > 0.1)):
+    #   events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
+    #
+    # if ret.gasPressed:
+    #   events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+    #
+    # if self.low_speed_alert:
+    #   events.append(create_event('belowSteerSpeed', [ET.WARNING]))
 
-    if ret.gasPressed:
-      events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
-
-    if self.low_speed_alert:
-      events.append(create_event('belowSteerSpeed', [ET.WARNING]))
+    if self.turning_indicator_alert:
+      events.append(create_event('turningIndicatorOn', [ET.WARNING]))
 
     ret.events = events
 
     self.gas_pressed_prev = ret.gasPressed
     self.brake_pressed_prev = ret.brakePressed
     self.cruise_enabled_prev = ret.cruiseState.enabled
+    self.lkas_button_on_prev = self.CS.lkas_button_on
+    self.vEgo_prev = ret.vEgo
 
     return ret.as_reader()
 

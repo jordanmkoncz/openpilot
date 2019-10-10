@@ -57,6 +57,7 @@ def get_can_parser(CP):
     ("CR_Mdps_StrColTq", "MDPS12", 0),
     ("CF_Mdps_ToiActive", "MDPS12", 0),
     ("CF_Mdps_ToiUnavail", "MDPS12", 0),
+    ("CF_Mdps_ToiFlt", "MDPS12", 0),
     ("CF_Mdps_FailStat", "MDPS12", 0),
     ("CR_Mdps_OutTq", "MDPS12", 0),
 
@@ -121,6 +122,7 @@ def get_camera_parser(CP):
 
   signals = [
     # sig_name, sig_address, default
+    ("CF_Lkas_Bca_R", "LKAS11", 0),
     ("CF_Lkas_LdwsSysState", "LKAS11", 0),
     ("CF_Lkas_SysWarning", "LKAS11", 0),
     ("CF_Lkas_LdwsLHWarning", "LKAS11", 0),
@@ -135,7 +137,13 @@ def get_camera_parser(CP):
     ("CF_Lkas_FcwCollisionWarning", "LKAS11", 0),
     ("CF_Lkas_FusionState", "LKAS11", 0),
     ("CF_Lkas_FcwOpt_USM", "LKAS11", 0),
-    ("CF_Lkas_LdwsOpt_USM", "LKAS11", 0)
+    ("CF_Lkas_LdwsOpt_USM", "LKAS11", 0),
+    ("CF_Lkas_Unknown1", "LKAS11", 0),
+    ("CF_Lkas_Unknown2", "LKAS11", 0),
+    ("CF_Lkas_ActToi", "LKAS11", 0),
+    ("CR_Lkas_StrToqReq", "LKAS11", 0),
+    ("CF_Lkas_MsgCount", "LKAS11", 0),
+    ("CF_Lkas_Chksum", "LKAS11", 0)
   ]
 
   checks = []
@@ -164,7 +172,10 @@ class CarState(object):
     self.left_blinker_flash = 0
     self.right_blinker_on = 0
     self.right_blinker_flash = 0
+    self.lkas_button_on = 0
+    self.min_steer_speed = 0.0
     self.no_radar = self.CP.carFingerprint in FEATURES["non_scc"]
+    self.low_speed_alert = False
 
   def update(self, cp, cp_cam):
     # update prevs, update must run once per Loop
@@ -220,6 +231,8 @@ class CarState(object):
     self.brake_error = 0
     self.steer_torque_driver = cp.vl["MDPS11"]['CR_Mdps_DrvTq']
     self.steer_torque_motor = cp.vl["MDPS12"]['CR_Mdps_OutTq']
+    self.lkas11_icon = cp_cam.vl["LKAS11"]['CF_Lkas_Bca_R']
+    self.mdps12_flt = cp.vl["MDPS12"]['CF_Mdps_ToiFlt']
     self.stopped = cp.vl["SCC11"]['SCCInfoDisplay'] == 4. if not self.no_radar else False
     self.lead_distance = cp.vl["SCC11"]['ACC_ObjDist'] if not self.no_radar else 0
 
@@ -232,6 +245,19 @@ class CarState(object):
     else:
       self.pedal_gas = cp.vl["EMS12"]['TPS']
     self.car_gas = cp.vl["EMS12"]['TPS']
+
+    if self.mdps12_flt != 0 and self.v_ego_raw > 0. and abs(self.angle_steers) < 5.0 and self.lkas11_icon != 2:
+      if self.v_ego_raw > self.min_steer_speed:
+        self.min_steer_speed = self.v_ego_raw + 0.1
+
+    # If MDPS TOI faults, low speed alert
+    if self.mdps12_flt == 1:
+      self.low_speed_alert = True
+    # If we have LKAS_Icon == 2, then we know its 16.7m/s (Suspected this is only seen on Genesis)
+    elif self.lkas11_icon == 2 and self.v_ego_raw < 16.8:
+      self.low_speed_alert = True
+    else:
+      self.low_speed_alert = False
 
     # Gear Selection via Cluster - For those Kia/Hyundai which are not fully discovered, we can use the Cluster Indicator for Gear Selection, as this seems to be standard over all cars, but is not the preferred method.
     if self.car_fingerprint in FEATURES["use_cluster_gears"]:
@@ -288,3 +314,4 @@ class CarState(object):
     # save the entire LKAS11 and CLU11
     self.lkas11 = cp_cam.vl["LKAS11"]
     self.clu11 = cp.vl["CLU11"]
+    self.mdps12 = cp.vl["MDPS12"]
