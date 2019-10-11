@@ -5,6 +5,7 @@ from selfdrive.car.hyundai.hyundaican import create_lkas11, create_lkas12, \
                                              create_clu11
 from selfdrive.car.hyundai.values import CAR, Buttons
 from selfdrive.can.packer import CANPacker
+from common.numpy_fast import clip
 
 
 # Steer torque limits
@@ -16,6 +17,9 @@ class SteerLimitParams:
   STEER_DRIVER_ALLOWANCE = 50
   STEER_DRIVER_MULTIPLIER = 2
   STEER_DRIVER_FACTOR = 1
+
+class LowSpeedSteerLimitParams(SteerLimitParams):
+  STEER_MAX = 36
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -59,21 +63,47 @@ class CarController(object):
     # True when giraffe switch 2 is low and we need to replace all the camera messages
     # otherwise we forward the camera msgs and we just replace the lkas cmd signals
     self.camera_disconnected = False
+    self.turning_signal_timer = 0
 
     self.packer = CANPacker(dbc_name)
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
               left_line, right_line, left_lane_depart, right_lane_depart):
 
+    if CS.left_blinker_on or CS.right_blinker_on:
+      self.turning_signal_timer = 100  # Disable for 1.0 Seconds after blinker turned off
+    if self.turning_signal_timer:
+      enabled = 0
+
+    disable_steer = False
+
+    if CS.low_speed_alert:
+      disable_steer = True
+
     ### Steering Torque
-    apply_steer = actuators.steer * SteerLimitParams.STEER_MAX
+    if CS.min_steer_speed >= CS.v_ego_raw:
+      apply_steer = actuators.steer * LowSpeedSteerLimitParams.STEER_MAX
 
-    apply_steer = apply_std_steer_torque_limits(apply_steer, self.apply_steer_last, CS.steer_torque_driver, SteerLimitParams)
+      apply_steer = apply_std_steer_torque_limits(
+        apply_steer, self.apply_steer_last, CS.steer_torque_driver, LowSpeedSteerLimitParams
+      )
 
-    if not enabled:
+      if apply_steer < 0:
+        apply_steer = clip(apply_steer, -LowSpeedSteerLimitParams.STEER_MAX, 0)
+      else:
+        apply_steer = clip(apply_steer, 0, LowSpeedSteerLimitParams.STEER_MAX)
+    else:
+      apply_steer = actuators.steer * SteerLimitParams.STEER_MAX
+
+      apply_steer = apply_std_steer_torque_limits(
+        apply_steer, self.apply_steer_last, CS.steer_torque_driver, SteerLimitParams
+      )
+
+    if not enabled or disable_steer:
       apply_steer = 0
-
-    steer_req = 1 if enabled else 0
+      steer_req = 0
+    else:
+      steer_req = 1
 
     self.apply_steer_last = apply_steer
 
@@ -97,9 +127,9 @@ class CarController(object):
                                    enabled, CS.lkas11, hud_alert, lane_visible, left_lane_depart, right_lane_depart,
                                    keep_stock=(not self.camera_disconnected)))
 
-    if pcm_cancel_cmd:
-      self.clu11_cnt = frame % 0x10
-      can_sends.append(create_clu11(self.packer, CS.clu11, Buttons.CANCEL, self.clu11_cnt))
+    # if pcm_cancel_cmd:
+    #   self.clu11_cnt = frame % 0x10
+    #   can_sends.append(create_clu11(self.packer, CS.clu11, Buttons.CANCEL, self.clu11_cnt))
 
     if CS.stopped:
       # run only first time when the car stopped
@@ -119,5 +149,7 @@ class CarController(object):
     elif self.last_lead_distance != 0:
       self.last_lead_distance = 0  
 
+    if self.turning_signal_timer > 0:
+      self.turning_signal_timer -= 1
 
     return can_sends
