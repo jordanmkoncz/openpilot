@@ -19,7 +19,7 @@ class SteerLimitParams:
   STEER_DRIVER_FACTOR = 1
 
 class LowSpeedSteerLimitParams(SteerLimitParams):
-  STEER_MAX = 36
+  STEER_MAX = 100
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
