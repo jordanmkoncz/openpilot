@@ -87,13 +87,13 @@ class DriverStatus():
     self.face_detected = False
     self.terminal_alert_cnt = 0
     self.step_change = 0.
-    self.active_monitoring_mode = True
+    self.active_monitoring_mode = False  # Default to active monitoring disabled.
     self.threshold_prompt = _DISTRACTED_PROMPT_TIME_TILL_TERMINAL / _DISTRACTED_TIME
 
-    self.is_rhd_region = False
+    self.is_rhd_region = True  # Car will always be in RHD region.
     self.is_rhd_region_checked = False
 
-    self._set_timers(active_monitoring=True)
+    self._set_timers(active_monitoring=False)  # Default to active monitoring disabled.
 
   def _set_timers(self, active_monitoring):
     if self.active_monitoring_mode and self.awareness <= self.threshold_prompt:
