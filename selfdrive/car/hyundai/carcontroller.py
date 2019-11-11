@@ -11,7 +11,7 @@ from common.numpy_fast import clip
 # Steer torque limits
 
 class SteerLimitParams:
-  STEER_MAX = 255   # 409 is the max, 255 is stock
+  STEER_MAX = 275   # 409 is the max, 255 is stock
   STEER_DELTA_UP = 3
   STEER_DELTA_DOWN = 7
   STEER_DRIVER_ALLOWANCE = 50
@@ -19,7 +19,7 @@ class SteerLimitParams:
   STEER_DRIVER_FACTOR = 1
 
 class LowSpeedSteerLimitParams(SteerLimitParams):
-  STEER_MAX = 36
+  STEER_MAX = 50
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
