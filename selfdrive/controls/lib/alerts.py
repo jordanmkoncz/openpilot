@@ -59,6 +59,13 @@ class Alert():
 
 ALERTS = [
   Alert(
+      "steerMaxReached",
+      "MAXIMUM STEER REACHED",
+      "Turn Exceeds Steering Limit",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimeWarning2, 1., 1., 3.),
+
+  Alert(
       "turningIndicatorOn",
       "TAKE CONTROL",
       "Steer Unavailable while Turning",
