@@ -59,6 +59,13 @@ class Alert():
 
 ALERTS = [
   Alert(
+      "mdpsFault",
+      "TAKE CONTROL",
+      "MDPS Fault",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2, 1., 2., 3.),
+
+  Alert(
       "turningIndicatorOn",
       "TAKE CONTROL",
       "Steer Unavailable while Turning",

@@ -21,6 +21,7 @@ class CarInterface(CarInterfaceBase):
     self.brake_pressed_prev = False
     self.cruise_enabled_prev = False
     self.low_speed_alert = False
+    self.mdps_fault_alert = False
 
     # *** init the major players ***
     self.CS = CarState(CP)
@@ -257,6 +258,9 @@ class CarInterface(CarInterfaceBase):
     ret.doorOpen = not self.CS.door_all_closed
     ret.seatbeltUnlatched = not self.CS.seatbelt
 
+    # MDPS fault alert
+    self.mdps_fault_alert = self.CS.mdps12_flt != 0
+
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:	
       self.low_speed_alert = True	
@@ -294,6 +298,9 @@ class CarInterface(CarInterfaceBase):
 
     #if ret.gasPressed:
       #events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+
+    if self.mdps_fault_alert:
+      events.append(create_event('mdpsFault', [ET.WARNING]))
 
     if self.low_speed_alert:
       events.append(create_event('belowSteerSpeed', [ET.WARNING]))

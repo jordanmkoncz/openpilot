@@ -59,6 +59,7 @@ def get_can_parser(CP):
     ("CR_Mdps_StrColTq", "MDPS12", 0),
     ("CF_Mdps_ToiActive", "MDPS12", 0),
     ("CF_Mdps_ToiUnavail", "MDPS12", 0),
+    ("CF_Mdps_ToiFlt", "MDPS12", 0),
     ("CF_Mdps_FailStat", "MDPS12", 0),
     ("CR_Mdps_OutTq", "MDPS12", 0),
 
@@ -222,6 +223,7 @@ class CarState():
     self.brake_error = 0
     self.steer_torque_driver = cp.vl["MDPS11"]['CR_Mdps_DrvTq']
     self.steer_torque_motor = cp.vl["MDPS12"]['CR_Mdps_OutTq']
+    self.mdps12_flt = cp.vl["MDPS12"]['CF_Mdps_ToiFlt']
     self.stopped = cp.vl["SCC11"]['SCCInfoDisplay'] == 4. if not self.no_radar else False
     self.lead_distance = cp.vl["SCC11"]['ACC_ObjDist'] if not self.no_radar else 0
 
@@ -289,3 +291,4 @@ class CarState():
     # save the entire LKAS11 and CLU11
     self.lkas11 = cp_cam.vl["LKAS11"]
     self.clu11 = cp.vl["CLU11"]
+    self.mdps12 = cp.vl["MDPS12"]
