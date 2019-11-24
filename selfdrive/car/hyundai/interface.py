@@ -250,6 +250,7 @@ class CarInterface(CarInterfaceBase):
     ret.seatbeltUnlatched = not self.CS.seatbelt
 
     # Check whether STEER_MAX limit has been reached
+    print("DEBUG_CS_LKAS11")
     print(self.CS.lkas11)
     # self.steer_max_alert = abs(self.CS.lkas11["CR_Lkas_StrToqReq"]) == abs(SteerLimitParams.STEER_MAX)
 
