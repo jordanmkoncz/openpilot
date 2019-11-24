@@ -250,7 +250,8 @@ class CarInterface(CarInterfaceBase):
     ret.seatbeltUnlatched = not self.CS.seatbelt
 
     # Check whether STEER_MAX limit has been reached
-    self.steer_max_alert = abs(c.apply_steer_last) == abs(SteerLimitParams.STEER_MAX)
+    print(self.CS.lkas11)
+    # self.steer_max_alert = abs(self.CS.lkas11["CR_Lkas_StrToqReq"]) == abs(SteerLimitParams.STEER_MAX)
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:	
