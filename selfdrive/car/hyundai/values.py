@@ -3,9 +3,9 @@ from selfdrive.car import dbc_dict
 # Steer torque limits
 
 class SteerLimitParams:
-  STEER_MAX = 305   # 409 is the max, 255 is stock
-  STEER_DELTA_UP = 3
-  STEER_DELTA_DOWN = 7
+  STEER_MAX = 315   # 409 is the max, 255 is stock
+  STEER_DELTA_UP = 10
+  STEER_DELTA_DOWN = 10
   STEER_DRIVER_ALLOWANCE = 50
   STEER_DRIVER_MULTIPLIER = 2
   STEER_DRIVER_FACTOR = 1
