@@ -258,8 +258,8 @@ class CarInterface(CarInterfaceBase):
     ret.doorOpen = not self.CS.door_all_closed
     ret.seatbeltUnlatched = not self.CS.seatbelt
 
-    # MDPS fault alert
-    self.mdps_fault_alert = self.CS.mdps12_flt != 0
+    # MDPS fault alert.
+    self.mdps_fault_alert = self.CS.mdps12_toi_flt != 0 or self.CS.mdps12_fail_stat != 0
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:	
