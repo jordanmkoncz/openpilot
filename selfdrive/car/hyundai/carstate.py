@@ -129,6 +129,7 @@ def get_camera_parser(CP):
     ("CF_Lkas_LdwsRHWarning", "LKAS11", 0),
     ("CF_Lkas_HbaLamp", "LKAS11", 0),
     ("CF_Lkas_FcwBasReq", "LKAS11", 0),
+    ("CR_Lkas_StrToqReq", "LKAS11", 0),
     ("CF_Lkas_ToiFlt", "LKAS11", 0),
     ("CF_Lkas_HbaSysState", "LKAS11", 0),
     ("CF_Lkas_FcwOpt", "LKAS11", 0),
@@ -285,6 +286,8 @@ class CarState():
       else:
         self.gear_shifter = GearShifter.unknown
 
+    # Set `StrToqReq` value to use in interface.py.
+    self.str_toq_req = cp_cam.vl["LKAS11"]["CR_Lkas_StrToqReq"]
 
     # save the entire LKAS11 and CLU11
     self.lkas11 = cp_cam.vl["LKAS11"]

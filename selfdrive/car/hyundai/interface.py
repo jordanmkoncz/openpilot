@@ -170,7 +170,7 @@ class CarInterface(CarInterfaceBase):
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, ECU.CAM) or has_relay
     ret.openpilotLongitudinalControl = False
 
-    ret.steerLimitAlert = True  # Enable steerLimitAlert warning
+    ret.steerLimitAlert = False  # Disable steerLimitAlert warning
     ret.stoppingControl = False
     ret.startAccel = 0.0
 
@@ -250,9 +250,9 @@ class CarInterface(CarInterfaceBase):
     ret.seatbeltUnlatched = not self.CS.seatbelt
 
     # Check whether STEER_MAX limit has been reached
-    print("DEBUG_CS_LKAS11")
-    print(self.CS.lkas11)
-    # self.steer_max_alert = abs(self.CS.lkas11["CR_Lkas_StrToqReq"]) == abs(SteerLimitParams.STEER_MAX)
+    # print("DEBUG_CR_Lkas_StrToqReq")
+    # print(self.CS.str_toq_req)
+    self.steer_max_alert = abs(self.CS.str_toq_req) == abs(SteerLimitParams.STEER_MAX)
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:	
