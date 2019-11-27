@@ -66,6 +66,13 @@ ALERTS = [
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
 
   Alert(
+      "mdpsFault",
+      "TAKE CONTROL",
+      "MDPS Fault",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.steerRequired, AudibleAlert.chimeWarning2, 1., 2., 3.),
+
+  Alert(
       "turningIndicatorOn",
       "TAKE CONTROL",
       "Steer Unavailable while Turning",

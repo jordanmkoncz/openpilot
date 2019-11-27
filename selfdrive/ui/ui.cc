@@ -1283,9 +1283,13 @@ static void ui_draw_vision_event(UIState *s) {
   const int viz_event_h = (header_h - (bdr_s*1.5));
   if (s->scene.decel_for_model && s->scene.engaged) {
     // draw winding road sign
-    const int img_turn_size = 96*1.5; // Make it the size as steering wheel icon
-    const int img_turn_x = viz_event_x-(img_turn_size/4);
-    const int img_turn_y = viz_event_y+bdr_s-25;
+    // Make it the size and position as steering wheel icon
+    const int img_turn_base_size = 96;
+    const int img_turn_base_x = viz_event_x + (viz_event_w - img_turn_base_size);
+    const int img_turn_base_y = viz_event_y + (img_turn_base_size / 2);
+    const int img_turn_size = img_turn_base_size * 1.5;
+    const int img_turn_x = img_turn_base_x - (img_turn_size / 2);
+    const int img_turn_y = img_turn_base_y - 25;
     float img_turn_alpha = 1.0f;
     nvgBeginPath(s->vg);
     NVGpaint imgPaint = nvgImagePattern(s->vg, img_turn_x, img_turn_y,

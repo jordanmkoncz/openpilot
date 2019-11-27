@@ -22,6 +22,7 @@ class CarInterface(CarInterfaceBase):
     self.cruise_enabled_prev = False
     self.low_speed_alert = False
     self.steer_max_alert = False
+    self.mdps_fault_alert = False
 
     # *** init the major players ***
     self.CS = CarState(CP)
@@ -70,7 +71,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
       ret.minSteerSpeed = 0.
-    elif candidate in [CAR.ELANTRA, CAR.ELANTRA_GT_I30]:
+    elif candidate == CAR.ELANTRA:
       ret.lateralTuning.pid.kf = 0.00006
       ret.mass = 1275. + STD_CARGO_KG
       ret.wheelbase = 2.7
@@ -78,7 +79,16 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.385
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
-      ret.minSteerSpeed = 28 * CV.MPH_TO_MS
+      ret.minSteerSpeed = 32 * CV.MPH_TO_MS
+    elif candidate == CAR.ELANTRA_GT_I30:
+      ret.lateralTuning.pid.kf = 0.00006
+      ret.mass = 1344. + STD_CARGO_KG  # Spec
+      ret.wheelbase = 2.65  # Spec
+      ret.steerRatio = 13.4  # Spec
+      tire_stiffness_factor = 0.385
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
+      ret.minSteerSpeed = 32 * CV.MPH_TO_MS
     elif candidate == CAR.GENESIS:
       ret.lateralTuning.pid.kf = 0.00005
       ret.mass = 2060. + STD_CARGO_KG
@@ -254,6 +264,9 @@ class CarInterface(CarInterfaceBase):
     # print(self.CS.str_toq_req)
     self.steer_max_alert = abs(self.CS.str_toq_req) == abs(SteerLimitParams.STEER_MAX)
 
+    # MDPS fault alert.
+    self.mdps_fault_alert = self.CS.mdps12_toi_flt != 0 or self.CS.mdps12_fail_stat != 0
+
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:	
       self.low_speed_alert = True	
@@ -295,6 +308,9 @@ class CarInterface(CarInterfaceBase):
     if self.steer_max_alert:
       events.append(create_event('steerMaxReached', [ET.WARNING]))
 
+    if self.mdps_fault_alert:
+      events.append(create_event('mdpsFault', [ET.WARNING]))
+
     if self.low_speed_alert:
       events.append(create_event('belowSteerSpeed', [ET.WARNING]))
 
@@ -310,9 +326,8 @@ class CarInterface(CarInterfaceBase):
     return ret.as_reader()
 
   def apply(self, c):
-    
-    # Fix for Genesis hard fault when steer request sent while the speed is low 
-    enable = 0 if self.CS.v_ego < self.CP.minSteerSpeed and self.CP.carFingerprint == CAR.GENESIS else c.enabled
+    # Fix for fault when steer request sent while the speed is below `minSteerSpeed`.
+    enable = 0 if self.CS.v_ego < self.CP.minSteerSpeed else c.enabled
     
     can_sends = self.CC.update(enable, self.CS, self.frame, c.actuators,
                                c.cruiseControl.cancel, c.hudControl.visualAlert, c.hudControl.leftLaneVisible,
