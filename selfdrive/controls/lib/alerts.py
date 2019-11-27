@@ -339,7 +339,7 @@ ALERTS = [
       "TAKE CONTROL IMMEDIATELY",
       "Gear not D",
       AlertStatus.critical, AlertSize.full,
-      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, .1, 2., 2.),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeDisengage, 0., 2., 2.),
 
   Alert(
       "calibrationInvalid",
@@ -459,7 +459,7 @@ ALERTS = [
       "TAKE CONTROL IMMEDIATELY",
       "Reverse Gear",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGHEST, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, 2.2, 3., 4.),
+      Priority.HIGHEST, VisualAlert.steerRequired, AudibleAlert.chimeDisengage, 0., 2., 2.),
 
   Alert(
       "cruiseDisabled",
