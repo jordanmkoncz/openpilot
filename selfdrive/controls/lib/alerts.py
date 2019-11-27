@@ -63,14 +63,14 @@ ALERTS = [
       "MAXIMUM STEER REACHED",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
 
   Alert(
       "turningIndicatorOn",
       "TAKE CONTROL",
       "Steer Unavailable while Turning",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarning1, 0., 0., 1.),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning1, 0., 0., 1.),
 
   # Miscellaneous alerts
   Alert(
@@ -99,7 +99,7 @@ ALERTS = [
       "TAKE CONTROL",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
 
   Alert(
       "steerTempUnavailable",
