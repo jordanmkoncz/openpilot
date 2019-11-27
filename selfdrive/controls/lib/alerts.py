@@ -63,7 +63,7 @@ ALERTS = [
       "TAKE CONTROL",
       "MDPS Fault",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2, 1., 2., 3.),
+      Priority.HIGHEST, VisualAlert.steerRequired, AudibleAlert.chimeWarning2, 1., 2., 3.),
 
   Alert(
       "turningIndicatorOn",
