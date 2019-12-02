@@ -262,9 +262,9 @@ class CarInterface(CarInterfaceBase):
     self.mdps_fault_alert = self.CS.mdps12_toi_flt != 0 or self.CS.mdps12_fail_stat != 0
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
-    if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:	
-      self.low_speed_alert = True	
-    if ret.vEgo > (self.CP.minSteerSpeed + 0.7):	
+    if ret.vEgo <= self.CP.minSteerSpeed and self.CP.minSteerSpeed > 10.:
+      self.low_speed_alert = True
+    if ret.vEgo > self.CP.minSteerSpeed:
       self.low_speed_alert = False
 
     # turning indicator alert hysteresis logic
