@@ -179,7 +179,7 @@ class CarInterface(CarInterfaceBase):
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, ECU.CAM) or has_relay
     ret.openpilotLongitudinalControl = False
 
-    ret.steerLimitAlert = True  # Enable steerLimitAlert warning
+    ret.steerLimitAlert = False
     ret.stoppingControl = False
     ret.startAccel = 0.0
 
