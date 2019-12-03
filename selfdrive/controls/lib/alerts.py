@@ -62,7 +62,7 @@ ALERTS = [
       "mdpsFault",
       "TAKE CONTROL",
       "MDPS Fault",
-      AlertStatus.userPrompt, AlertSize.mid,
+      AlertStatus.critical, AlertSize.mid,
       Priority.HIGHEST, VisualAlert.steerRequired, AudibleAlert.chimeWarning2, 1., 2., 3.),
 
   Alert(
