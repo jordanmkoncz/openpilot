@@ -104,7 +104,8 @@ def data_sample(CI, CC, sm, can_sock, driver_status, state, mismatch_counter, pa
 
   # GPS coords RHD parsing, once every restart
   if sm.updated['gpsLocation'] and not driver_status.is_rhd_region_checked:
-    is_rhd = is_rhd_region(sm['gpsLocation'].latitude, sm['gpsLocation'].longitude)
+    # is_rhd = is_rhd_region(sm['gpsLocation'].latitude, sm['gpsLocation'].longitude)
+    is_rhd = True   # Car will always be in RHD region.
     driver_status.is_rhd_region = is_rhd
     driver_status.is_rhd_region_checked = True
     put_nonblocking("IsRHD", "1" if is_rhd else "0")
