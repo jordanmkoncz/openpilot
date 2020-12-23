@@ -285,8 +285,8 @@ ALERTS = [
       "preventLCA",
       "TAKE CONTROL",
       "Lane Change Cancelled, Lane Unsafe",
-      AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.none, AudibleAlert.chimeWarningRepeat, .4, 3., 3.,),
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGH, VisualAlert.none, AudibleAlert.chimeError, .4, 0., 3.),
 
 
   Alert(
@@ -294,7 +294,7 @@ ALERTS = [
       "TAKE CONTROL",
       "Vision Model Output Uncertain",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimeWarning1, .4, 2., 3.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, 0., 0.4, .3),
 
   # Non-entry only alerts
   Alert(
